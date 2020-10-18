@@ -1,98 +1,90 @@
-settings {
-    "main": {
-        "description": "Bladezone, by Provoxin#1418"
-    },
-    "lobby": {
-        "allowPlayersInQueue": true,
-        "spectatorSlots": 12,
-        "team1Slots": 5,
-        "team2Slots": 0
-    },
-    "gamemodes": {
-        "skirmish": {
-            "disabledMaps": [
-                "workshopChamber",
-                "workshopExpanse",
-                "workshopExpanseNight",
-                "workshopIsland",
-                "workshopIslandNight"
-            ]
-        },
-        "general": {
-            "gamemodeStartTrigger": "immediately",
-            "heroLimit": "off",
-            "respawnTime%": 0
-        }
-    },
-    "heroes": {
-        "team1": {
-            "general": {
-                "damageReceived%": 50
-            }
-        },
-        "allTeams": {
-            "genji": {
-                "enableInfiniteUlt": true
-            },
-            "zenyatta": {
-                "enableAbility1": false
-            },
-            "enabledHeroes": [
-                "genji"
-            ]
-        }
-    }
-}
+#!include "lobbySettings.opy"
  
 #Global variables
- 
+
+# What heroes the bots are spawned as
 globalvar botHeroes                 0
+# The bot used to nano the player
 globalvar nanoBot                   1
+# Keeps track of the player who is running
 globalvar runnerData                2
+# What mode the bots are being spawned in
 globalvar spawningMode              3
+# Position of the spawning ring
 globalvar spawnRingPos              4
+# Radius of the spawning ring
 globalvar spawnRingRadius           5
+# Height of the spawning ring
 globalvar spawnRingHeight           6
+# Whether to respawn bots at nearest walkable position in ring spawning mode
 globalvar respawnAtNearestWalkable  7
+# Local variable used for simplification
 globalvar bot                       9
+# Control variable for affecting multiple bots
 globalvar botLoopIndex              10
+# Positions of points for preset points spawning
 globalvar spawnPointPositions       11
+# The points which were randomly chosen to put bots at
 globalvar chosenSpawnPointPositions 12
+# Effect IDs of spawn points
 globalvar spawnPointEffectIDs       13
+# How much a bot can move away from a preset point
 globalvar presetPointVariance       14
 
 globalvar i                         8
  
  
 #Player variables
- 
+
+# Whether the player is editing
 playervar isEditing             0
+# The position of the player in noclip
 playervar noclipPosition        1
+# The bot the player is grabbing
 playervar grabbedBot            2
+# Local variable used for simplification
 playervar targetedDummy         3
+# The player's reset point position
 playervar resetPos              4
+# How far away bots and other objects are placed/held
 playervar placementDistance     5
+# The page the player is on
 playervar menuPage              6
-playervar menuPageTextIDs       77
-playervar pageTextIndex             9
+# IDs of the HUD texts used to make menu pages
+playervar menuPageTextIDs       7
+# Control variable for creating menu pages
+playervar pageTextIndex         9
+# Array of modifier states
 playervar modifierSettings      10
+# The amount of time the player has spent on their current run
 playervar currentRunTime        11
+# The amount of time the player spent on their last run
 playervar lastRunTime           12
+# The lowest amount of time a player has spent on a run
 playervar bestRunTime           13
+# Whether the player is changing a menu page
 playervar changingPage          14
+# Misc data to give variance to bot spawning positions
 playervar randomSpawnData       15
+# Local variable to determine which direction to change menu pages
 playervar buttonsHeld           16
+# Whether the player is changing a bot's hero
 playervar isChangingBot         17
-playervar positionData          18
+# Local variable to seamlessly restore the player's facing direction
+playervar prevFacing             18
 
 playervar i                     8
 
 
 #Subroutines
 
+# Give the calling player nanoboost
 subroutine giveNano         0
+# Load the calling player's current page
 subroutine loadPage         1
+# Unload the calling player's current page
 subroutine unloadPage       2
+# Perform logic to position bots
 subroutine setBotPositions  3
   
 #!include "../values.opy"
@@ -121,6 +113,25 @@ rule "debug":
     @Condition DEBUG
 
     #debugText(eventPlayer, eventPlayer.i)
+
+
+rule "​                                                                 Made by Provoxin - Contact me on Discord @Provoxin#5368":
+    @Delimiter
+
+
+rule "/// Default bot heroes":
+    botHeroes = []
+    botHeroes.append(Hero.ANA)
+    botHeroes.append(Hero.ASHE)
+    botHeroes.append(Hero.BAPTISTE)
+    botHeroes.append(Hero.ECHO)
+    botHeroes.append(Hero.SIGMA)
+    botHeroes.append(Hero.ZARYA)
+
+
+rule "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------":
+    @Delimiter
+    @Disabled
 
 
 def giveNano():
@@ -192,14 +203,14 @@ def setBotPositions():
                 # teleport to a raycast from the point to the point + its offset to avoid clipping into walls
                 getPlayers(Team.2)[botLoopIndex].teleport(raycast(chosenSpawnPointPositions[botLoopIndex], chosenSpawnPointPositions[botLoopIndex] + bot.randomSpawnData, [], [], false).getHitPosition())
 
-rule "Set up bot heroes here (duplicates will bug bot creation)":
-    botHeroes = []
-    botHeroes.append(Hero.ANA)
-    botHeroes.append(Hero.ASHE)
-    botHeroes.append(Hero.BAPTISTE)
-    botHeroes.append(Hero.ECHO)
-    botHeroes.append(Hero.SIGMA)
-    botHeroes.append(Hero.ZARYA)
+
+rule "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------":
+    @Delimiter
+    @Disabled
+
+
+rule "==================================================SETUP / GENERAL==================================================":
+    @Delimiter
 
 
 rule "Global setup":
@@ -312,22 +323,6 @@ rule "Ana bot setup":
     eventPlayer.startFacing(currentRunner.getFacingDirection() * vect(1, 0, 1), 5000, Relativity.TO_WORLD, FacingReeval.DIRECTION_AND_TURN_RATE)
 
 
-rule "Runner exists":
-    @Condition currentRunner == null  # no runner is set
-    @Condition getNumberOfHeroes(Hero.GENJI, Team.1) > 0  # there's a valid runner
-
-    # update runner
-    updateRunner()
-    wait()
-    if RULE_CONDITION: goto RULE_START
-
-
-rule "Runner doesn't exist":
-    @Condition entityExists(currentRunner) == false
-
-    currentRunner = null  # allow previous rule to pick up a new runner
-
-
 rule "Set match time to time elapsed":
     @Condition not DEBUG
 
@@ -365,16 +360,20 @@ rule "Repeatedly nano player while blading":
     if RULE_CONDITION: goto RULE_START
 
 
-rule "Toggle edit mode":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == true
-    @Condition currentRunner == eventPlayer  # only allow the current runner to toggle edit
+rule "Update currentRunner when a valid runner exists":
+    @Condition currentRunner == null  # no runner is set
+    @Condition getNumberOfHeroes(Hero.GENJI, Team.1) > 0  # there's a valid runner
 
-    while eventPlayer.changingPage:
-        wait()  # wait until not changing page as this can mess up the page's texts
-    eventPlayer.isEditing = not eventPlayer.isEditing  # toggle edit
-    wait(0.25)  # prevent spamming
+    # update runner
+    updateRunner()
+    wait()
+    if RULE_CONDITION: goto RULE_START
 
+    
+rule "Update currentRunner when the current runner doesn't exist":
+    @Condition entityExists(currentRunner) == false
+
+    currentRunner = null  # allow previous rule to pick up a new runner
 
 rule "When not the current runner":
     @Event eachPlayer
@@ -394,6 +393,17 @@ rule "When current runner":
     @Condition eventPlayer.isChangingBot == false
 
     eventPlayer.isEditing = false  # force player to drop out of edit mode and teleport to their reset point if it exists
+
+
+rule "Toggle edit mode":
+    @Event eachPlayer
+    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == true
+    @Condition currentRunner == eventPlayer  # only allow the current runner to toggle edit
+
+    while eventPlayer.changingPage:
+        wait()  # wait until not changing page as this can mess up the page's texts
+    eventPlayer.isEditing = not eventPlayer.isEditing  # toggle edit
+    wait(0.25)  # prevent spamming
 
 
 rule "Enable edit mode":
@@ -474,6 +484,91 @@ rule "Disable edit mode":
             eventPlayer.setFacing(directionTowards(eventPlayer.resetPos, sorted(getPlayers(Team.2), lambda player: distance(eventPlayer.resetPos, player.getPosition()))[0]) * vect(1, 0.5, 1), Relativity.TO_WORLD)
 
 
+rule "=================================================GAMEMODE LOGIC=================================================":
+    @Delimiter
+
+
+rule "Start timer":
+    @Event playerDealtDamage
+    @Hero genji
+    @Condition eventPlayer.currentRunTime == 0
+
+    chase(eventPlayer.currentRunTime, 9999, rate=1, ChaseReeval.NONE)  # TODO: base this on leaving a certain radius of reset point if in multiplayer
+
+
+rule "All bots dead - global":
+    @Event global
+    @Condition getNumberOfPlayers(Team.2) > 0
+    @Condition getNumberOfLivingPlayers(Team.2) == 0
+
+    wait(0.25)
+    setBotPositions()
+    wait(0.25)
+    getPlayers(Team.2).resurrect()
+    # update runner
+    updateRunner()
+
+rule "All bots dead - player":
+    @Event eachPlayer
+    @Team 1
+    @Condition eventPlayer.isDummy() == false
+    @Condition getNumberOfPlayers(Team.2) > 0
+    @Condition getNumberOfLivingPlayers(Team.2) == 0
+
+    if currentRunner == eventPlayer:  # event player is current runner
+        stopChasingVariable(eventPlayer.currentRunTime)  # run is over, stop chasing run time
+        eventPlayer.lastRunTime = eventPlayer.currentRunTime  # record this run time
+        wait()
+        if eventPlayer.currentRunTime < eventPlayer.bestRunTime or not eventPlayer.bestRunTime:  # player has no best time or this is better
+            eventPlayer.bestRunTime = eventPlayer.currentRunTime  # update bestRunTime
+            smallMessage(eventPlayer, "NEW PERSONAL BEST TIME: {0}".format(eventPlayer.bestRunTime))  # show new PB
+        else:  # not a PB
+            smallMessage(eventPlayer, "TIME: {0}".format(eventPlayer.lastRunTime))  # show time
+        eventPlayer.currentRunTime = 0  # reset time for next run
+    if getNumberOfHeroes(Hero.GENJI, Team.1) < 2:  # is in singleplayer
+        wait(0.5)
+        if eventPlayer.resetPos != null:  # has a reset point set
+            if not eventPlayer.isEditing:  # not editing currently
+                eventPlayer.teleport(eventPlayer.resetPos)  # go to reset point
+                # cancel ult and reset cooldowns
+                eventPlayer.startForcingHero(Hero.TORBJORN)
+                eventPlayer.startForcingHero(Hero.GENJI)
+                eventPlayer.stopForcingCurrentHero()
+                # any bot is in LoS
+                if any([isInLoS(eventPlayer.resetPos + getHeight(eventPlayer), dummy.getEyePosition(), BarrierLos.PASS_THROUGH_BARRIERS) for dummy in getPlayers(Team.2)]):
+                    # face towards that bot
+                    eventPlayer.setFacing(directionTowards(eventPlayer.resetPos, sorted([dummy for dummy in getPlayers(Team.2) if isInLoS(eventPlayer.resetPos + getHeight(eventPlayer), dummy.getEyePosition(), BarrierLos.PASS_THROUGH_BARRIERS)], lambda dummy: distance(eventPlayer.resetPos, dummy.getPosition())[0])) * vect(1, 0.5, 1), Relativity.TO_WORLD)
+                elif spawningMode == SpawnMode.RING:  # current spawning mode is ring spawning
+                    eventPlayer.setFacing(directionTowards(eventPlayer.resetPos, spawnRingPos) * vect(1, 0, 1), Relativity.TO_WORLD)  # face towards center of ring
+                else:  # no bot in LoS and not using ring spawning
+                    # face towards closest bot
+                    eventPlayer.setFacing(directionTowards(eventPlayer.resetPos, sorted(getPlayers(Team.2), lambda player: distance(eventPlayer.resetPos, player.getPosition()))[0]) * vect(1, 0.5, 1), Relativity.TO_WORLD)
+        else:  # no reset point
+            eventPlayer.isEditing = true  # start editing
+        
+
+rule "All bots dead - bot":
+    @Event eachPlayer
+    @Team 2
+    @Condition eventPlayer.isDummy() == true
+    @Condition getNumberOfPlayers(Team.2) > 0
+    @Condition getNumberOfLivingPlayers(Team.2) == 0
+
+        
+rule "Give dash back when infinite dash is enabled":
+    @Event eachPlayer
+    @Team 1
+    @Hero genji
+    @Condition eventPlayer.infiniteDashEnabled == true
+    @Condition eventPlayer.isUsingAbility1() == false
+
+    eventPlayer.setAbilityCooldown(Button.ABILITY_1, 0)
+        
+
+rule "====================================================MENU PAGES====================================================":
+    @Delimiter
+
+
 rule "Change menu page":
     @Event eachPlayer
     @Condition eventPlayer.isEditing == true
@@ -498,7 +593,11 @@ rule "Change menu page":
         eventPlayer.menuPage = addMod(eventPlayer.menuPage, 1, len(menuPageNames))  # do math to figure out where to go
     
     loadPage()
-        
+
+
+rule "                                                                                                  /// GENERAL PAGE ///":
+    @Delimiter
+
 
 rule "Create bot or drop if currently holding one":
     @Event eachPlayer
@@ -526,26 +625,6 @@ rule "Create bot or drop if currently holding one":
         wait()  # allow another rule to register grabbedBot becoming null
     if getNumberOfPlayers(Team.2) < len(botHeroes):  # still more bots to make
         if RULE_CONDITION: goto RULE_START
-
-
-rule "Set high gravity if near floor":
-    @Event eachPlayer
-    @Team 2
-    @Condition eventPlayer.isDummy() == true
-    @Condition eventPlayer.getAltitude() < 0.05
-    @Condition any([player.grabbedBot == eventPlayer for player in getPlayersOnHero(Hero.GENJI, Team.1)]) == false  # no genji is grabbing the bot
-
-    eventPlayer.setGravity(10000)  # this makes the playermodel properly stand on the ground
-
-
-rule "Set low gravity if not near floor":
-    @Event eachPlayer
-    @Team 2
-    @Condition eventPlayer.isDummy() == true
-    @Condition eventPlayer.getAltitude() >= 0.05
-    @Condition any([player.grabbedBot == eventPlayer for player in getPlayersOnHero(Hero.GENJI, Team.1)]) == false  # no genji is grabbing the bot
-
-    eventPlayer.setGravity(0)  # float
 
 
 rule "Detect grab":
@@ -586,7 +665,7 @@ rule "Change bot hero":
     if any([isInLoS(eventPlayer.noclipPosition, dummy.getEyePosition(), BarrierLos.PASS_THROUGH_BARRIERS) for dummy in getPlayers(Team.2)]):  # any bot is in LoS
         eventPlayer.isChangingBot = true  # set a flag to disable some other rules which interfere otherwise
         stopChasingVariable(eventPlayer.noclipPosition)  # for some reason the game thinks the player should be moving when they're not spawned in
-        eventPlayer.positionData = [eventPlayer.getFacingDirection()]  # store the facing direction for a seamless transition back
+        eventPlayer.prevFacing = eventPlayer.getFacingDirection()  # store the facing direction for a seamless transition back
         eventPlayer.targetedDummy = closestToReticleNoclipLOS  # target the bot closest to the reticle in LoS
         nanoBot.startForcingHero(eventPlayer.targetedDummy.getCurrentHero())  # change the ana bot to show the player the hero of the bot they're changing
         # force player into hero select
@@ -602,7 +681,7 @@ rule "Change bot hero":
         eventPlayer.startForcingHero(Hero.GENJI)  # force player back to genji
         eventPlayer.setAllowedHeroes(Hero.GENJI)  # disallow picking other heroes
         eventPlayer.stopForcingCurrentHero()  # must stop forcing to let the player get kicked back to hero select in the future
-        eventPlayer.setFacing(eventPlayer.positionData[0], Relativity.TO_WORLD)  # set facing to the direction they were facing when triggering rule
+        eventPlayer.setFacing(eventPlayer.prevFacing, Relativity.TO_WORLD)  # set facing to the direction they were facing when triggering rule
         resetTimes(getPlayers(Team.1))
         eventPlayer.isChangingBot = false  # clear flag
         nanoBot.startForcingHero(Hero.ANA)  # force nano bot back to ana
@@ -682,13 +761,9 @@ rule "Stop changing placement distance":
 
     stopChasingVariable(eventPlayer.placementDistance)
 
-/*
-rule "Toggle modifiers":
-    @Event eachPlayer
-    @Condition eventPlayer.isEditing == true
-    @Condition eventPlayer.menuPage == MenuPage.MODIFIERS
-    @Condition len([button for button in [Button.MELEE] if eventPlayer.isHoldingButton(button)]) == 1  # magz pls ;-;
-*/
+
+rule "                                                                                                 /// MODIFIERS PAGE ///":
+    @Delimiter
 
 
 rule "Toggle nanoboost damage modifier":
@@ -727,6 +802,10 @@ rule "Toggle instakill modifier":
     @Condition eventPlayer.isHoldingButton(Button.MELEE) == true
 
     eventPlayer.instakillEnabled = not eventPlayer.instakillEnabled
+
+
+rule "                                                                                             /// RING SPAWNING PAGE ///":
+    @Delimiter
 
 
 rule "Place spawn ring":
@@ -815,6 +894,11 @@ rule "Toggle respawn at nearest walkable":
         for botLoopIndex in range(getNumberOfPlayers(Team.2)):  # foreach bot
             bot = getPlayers(Team.2)[botLoopIndex]
             bot.teleport(nearestWalkablePosition(bot.getPosition()) + Vector.DOWN * 0.2)  # teleport to nearest walkable and move down to force standing animation rather than floating
+
+
+
+rule "                                                                                    /// PRESET POINTS SPAWNING PAGE ///":
+    @Delimiter
 
 
 rule "Place spawn point":
@@ -915,81 +999,28 @@ rule "Reshuffle bots":
     setBotPositions()
 
 
-rule "Start timer":
-    @Event playerDealtDamage
-    @Hero genji
-    @Condition eventPlayer.currentRunTime == 0
-
-    chase(eventPlayer.currentRunTime, 9999, rate=1, ChaseReeval.NONE)  # TODO: base this on leaving a certain radius of reset point if in multiplayer
+rule "===================================================BOT HANDLING===================================================":
+    @Delimiter
 
 
-rule "All bots dead - global":
-    @Event global
-    @Condition getNumberOfPlayers(Team.2) > 0
-    @Condition getNumberOfLivingPlayers(Team.2) == 0
-
-    wait(0.25)
-    setBotPositions()
-    wait(0.25)
-    getPlayers(Team.2).resurrect()
-    # update runner
-    updateRunner()
-
-rule "All bots dead - player":
-    @Event eachPlayer
-    @Team 1
-    @Condition eventPlayer.isDummy() == false
-    @Condition getNumberOfPlayers(Team.2) > 0
-    @Condition getNumberOfLivingPlayers(Team.2) == 0
-
-    if currentRunner == eventPlayer:  # event player is current runner
-        stopChasingVariable(eventPlayer.currentRunTime)  # run is over, stop chasing run time
-        eventPlayer.lastRunTime = eventPlayer.currentRunTime  # record this run time
-        wait()
-        if eventPlayer.currentRunTime < eventPlayer.bestRunTime or not eventPlayer.bestRunTime:  # player has no best time or this is better
-            eventPlayer.bestRunTime = eventPlayer.currentRunTime  # update bestRunTime
-            smallMessage(eventPlayer, "NEW PERSONAL BEST TIME: {0}".format(eventPlayer.bestRunTime))  # show new PB
-        else:  # not a PB
-            smallMessage(eventPlayer, "TIME: {0}".format(eventPlayer.lastRunTime))  # show time
-        eventPlayer.currentRunTime = 0  # reset time for next run
-    if getNumberOfHeroes(Hero.GENJI, Team.1) < 2:  # is in singleplayer
-        wait(0.5)
-        if eventPlayer.resetPos != null:  # has a reset point set
-            if not eventPlayer.isEditing:  # not editing currently
-                eventPlayer.teleport(eventPlayer.resetPos)  # go to reset point
-                # cancel ult and reset cooldowns
-                eventPlayer.startForcingHero(Hero.TORBJORN)
-                eventPlayer.startForcingHero(Hero.GENJI)
-                eventPlayer.stopForcingCurrentHero()
-                # any bot is in LoS
-                if any([isInLoS(eventPlayer.resetPos + getHeight(eventPlayer), dummy.getEyePosition(), BarrierLos.PASS_THROUGH_BARRIERS) for dummy in getPlayers(Team.2)]):
-                    # face towards that bot
-                    eventPlayer.setFacing(directionTowards(eventPlayer.resetPos, sorted([dummy for dummy in getPlayers(Team.2) if isInLoS(eventPlayer.resetPos + getHeight(eventPlayer), dummy.getEyePosition(), BarrierLos.PASS_THROUGH_BARRIERS)], lambda dummy: distance(eventPlayer.resetPos, dummy.getPosition())[0])) * vect(1, 0.5, 1), Relativity.TO_WORLD)
-                elif spawningMode == SpawnMode.RING:  # current spawning mode is ring spawning
-                    eventPlayer.setFacing(directionTowards(eventPlayer.resetPos, spawnRingPos) * vect(1, 0, 1), Relativity.TO_WORLD)  # face towards center of ring
-                else:  # no bot in LoS and not using ring spawning
-                    # face towards closest bot
-                    eventPlayer.setFacing(directionTowards(eventPlayer.resetPos, sorted(getPlayers(Team.2), lambda player: distance(eventPlayer.resetPos, player.getPosition()))[0]) * vect(1, 0.5, 1), Relativity.TO_WORLD)
-        else:  # no reset point
-            eventPlayer.isEditing = true  # start editing
-        
-
-rule "All bots dead - bot":
+rule "Set high gravity if near floor":
     @Event eachPlayer
     @Team 2
     @Condition eventPlayer.isDummy() == true
-    @Condition getNumberOfPlayers(Team.2) > 0
-    @Condition getNumberOfLivingPlayers(Team.2) == 0
+    @Condition eventPlayer.getAltitude() < 0.05
+    @Condition any([player.grabbedBot == eventPlayer for player in getPlayersOnHero(Hero.GENJI, Team.1)]) == false  # no genji is grabbing the bot
 
-        
-rule "Give dash back when infinite dash is enabled":
+    eventPlayer.setGravity(10000)  # this makes the playermodel properly stand on the ground
+
+
+rule "Set low gravity if not near floor":
     @Event eachPlayer
-    @Team 1
-    @Hero genji
-    @Condition eventPlayer.infiniteDashEnabled == true
-    @Condition eventPlayer.isUsingAbility1() == false
+    @Team 2
+    @Condition eventPlayer.isDummy() == true
+    @Condition eventPlayer.getAltitude() >= 0.05
+    @Condition any([player.grabbedBot == eventPlayer for player in getPlayersOnHero(Hero.GENJI, Team.1)]) == false  # no genji is grabbing the bot
 
-    eventPlayer.setAbilityCooldown(Button.ABILITY_1, 0)
+    eventPlayer.setGravity(0)  # float
 
 
 rule "Stop bots floating":
