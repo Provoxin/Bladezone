@@ -201,7 +201,7 @@ def setBotPositions():
                 # store an offset from the point's position for random variance
                 bot.randomSpawnData = angleToDirection(random.uniform(0, 360), 0) * sqrt(random.uniform(0, 1)) * presetPointVariance
                 # teleport to a raycast from the point to the point + its offset to avoid clipping into walls
-                getPlayers(Team.2)[botLoopIndex].teleport(raycast(chosenSpawnPointPositions[botLoopIndex], chosenSpawnPointPositions[botLoopIndex] + bot.randomSpawnData, [], [], false).getHitPosition())
+                getPlayers(Team.2)[botLoopIndex].teleport(raycast(chosenSpawnPointPositions[botLoopIndex] + Vector.UP * 0.1, chosenSpawnPointPositions[botLoopIndex] + bot.randomSpawnData + (normalize(bot.randomSpawnData) * 0.5), [], [], false).getHitPosition() - (normalize(bot.randomSpawnData) * 0.5))
 
 
 rule "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------":
@@ -257,6 +257,7 @@ rule "Player Setup":
     eventPlayer.preloadHero([Hero.GENJI, Hero.TORBJORN])
 
     # deal a lot of damage if instakill is enabled
+    startDamageModification(getPlayers(Team.2), eventPlayer, 10000 if eventPlayer.instakillEnabled else 100, DamageReeval.RECEIVERS_DAMAGERS_AND_DMGPERCENT)
     startDamageModification(getPlayers(Team.2), eventPlayer, 10000 if eventPlayer.instakillEnabled else 100, DamageReeval.RECEIVERS_DAMAGERS_AND_DMGPERCENT)
 
     # when using blade with nano enabled, if ana isn't using ult, give same damage as nano would. works as a failsafe as well as allowing the player to disable nano VFX while keeping the damage
