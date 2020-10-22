@@ -226,12 +226,13 @@ rule "Global setup":
     spawnPointPositions = []
     spawnPointEffectIDs = []
     createDummy(Hero.ANA, Team.1, 5, Vector.UP * 10000, Vector.FORWARD)  # create an ana in the sky to nano
-    hudSubtext([player for player in getPlayers(Team.1) if player.isEditing], " \n\n\n\n\n[{0}] LEAVE EDIT MODE".format(buttonString(Button.INTERACT)), HudPosition.LEFT, -10, Color.YELLOW, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)
+    hudSubtext([player for player in getPlayers(Team.1) if player.isEditing], " \n\n\n\n[{0}] LEAVE EDIT MODE".format(buttonString(Button.INTERACT)), HudPosition.LEFT, -10, Color.YELLOW, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)
     hudSubtext([player for player in getPlayers(Team.1) if player.isEditing and player.menuPage == MenuPage.GENERAL and not getNumberOfPlayers(Team.2)], " \n\n\n\n\n\n\n\n\n\n\n\n\n{0} CREATE BOT".format(buttonString(Button.PRIMARY_FIRE)), HudPosition.TOP, 10, Color.WHITE, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)
     hudSubtext([player for player in getPlayers(Team.1) if player.isEditing and player.menuPage == MenuPage.RINGSPAWNING and spawningMode != SpawnMode.RING], " \n\n\n\n\n\n\n\n\n\n\n\n\n{0} PLACE RING".format(buttonString(Button.PRIMARY_FIRE)), HudPosition.TOP, 10, Color.WHITE, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)
     hudSubtext([player for player in getPlayers(Team.1) if player.isEditing and player.menuPage == MenuPage.PRESETSPAWNING/* and not len(spawnPointPositions)*/], " \n\n\n\n\n\n\n\n\n\n\n\n\n{0}".format("{0} PLACE SPAWN POINT".format(buttonString(Button.PRIMARY_FIRE)) if not len(spawnPointPositions) else "[{0}] CHANGE TO PRESET POINTS SPAWNING".format(buttonString(Button.RELOAD)) if spawningMode != SpawnMode.PRESETS else ""), HudPosition.TOP, 10, Color.WHITE, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)
     createEffect([player for player in getPlayers(Team.1) if player.isEditing and spawningMode == SpawnMode.RING], Effect.LIGHT_SHAFT, Color.RED, spawnRingPos + (Vector.UP * spawnRingHeight), spawnRingRadius + 1, EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
     createGHWatermark([player for player in getAllPlayers() if player.isEditing])
+    hudSubheader(getAllPlayers(), "CODE: 101G1", HudPosition.LEFT, -100, Color.LIME_GREEN, HudReeval.VISIBILITY, SpecVisibility.ALWAYS)
 
  
 rule "Player Setup":
