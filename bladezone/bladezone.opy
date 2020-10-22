@@ -71,7 +71,7 @@ playervar buttonsHeld           16
 # Whether the player is changing a bot's hero
 playervar isChangingBot         17
 # Local variable to seamlessly restore the player's facing direction
-playervar prevFacing             18
+playervar prevFacing            18
 
 playervar i                     8
 
@@ -107,7 +107,7 @@ enum SpawnMode:
     PRESETS
 
 
-#!define DEBUG true
+#!define DEBUG false
 rule "debug":
     @Event eachPlayer
     @Condition DEBUG
@@ -226,10 +226,6 @@ rule "Global setup":
     spawnPointPositions = []
     spawnPointEffectIDs = []
     createDummy(Hero.ANA, Team.1, 5, Vector.UP * 10000, Vector.FORWARD)  # create an ana in the sky to nano
-    /*
-    hudHeader([player for player in getPlayers(Team.1) if player.isEditing], "NEXT BOT: {0}".format(heroIcon(botHeroes.exclude([player.getCurrentHero() for player in getPlayers(Team.2)])[0]) if getNumberOfPlayers(Team.2) < len(botHeroes) else "NONE"), HudPosition.LEFT, -10, Color.GREEN, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)  # show which bot will be created next
-    #hudSubtext([player for player in getPlayers(Team.1) if player.isEditing and player.menuPage == MenuPage.GENERAL], "{0} CREATE BOT {1}\n{2}".format(buttonString(Button.PRIMARY_FIRE), heroIcon(botHeroes.exclude([player.getCurrentHero() for player in getPlayers(Team.2)])[0]) if getNumberOfPlayers(Team.2) < len(botHeroes) else "(NONE LEFT)", "{0} GRAB BOT\n{1}".format(buttonString(Button.SECONDARY_FIRE), "[{0}] REMOVE BOT\n[{1}] + [{0}] REMOVE ALL BOTS\n{2}".format(buttonString(Button.ABILITY_2), buttonString(Button.ABILITY_1), "[{0}] PLACE RESET MARKER\n[{1}] + [{0}] REMOVE RESET MARKER\n{2}".format(buttonString(Button.RELOAD), buttonString(Button.ABILITY_1), "[{0}] INCREASE PLACEMENT DISTANCE\n[{1}] + [{0}] DECREASE PLACEMENT DISTANCE".format(buttonString(Button.MELEE), buttonString(Button.ABILITY_1)))))), HudPosition.LEFT, 0, Color.WHITE, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)  # show keybinds
-    */
     hudSubtext([player for player in getPlayers(Team.1) if player.isEditing], " \n\n\n\n\n[{0}] LEAVE EDIT MODE".format(buttonString(Button.INTERACT)), HudPosition.LEFT, -10, Color.YELLOW, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)
     hudSubtext([player for player in getPlayers(Team.1) if player.isEditing and player.menuPage == MenuPage.GENERAL and not getNumberOfPlayers(Team.2)], " \n\n\n\n\n\n\n\n\n\n\n\n\n{0} CREATE BOT".format(buttonString(Button.PRIMARY_FIRE)), HudPosition.TOP, 10, Color.WHITE, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)
     hudSubtext([player for player in getPlayers(Team.1) if player.isEditing and player.menuPage == MenuPage.RINGSPAWNING and spawningMode != SpawnMode.RING], " \n\n\n\n\n\n\n\n\n\n\n\n\n{0} PLACE RING".format(buttonString(Button.PRIMARY_FIRE)), HudPosition.TOP, 10, Color.WHITE, HudReeval.VISIBILITY_AND_STRING, SpecVisibility.DEFAULT)
