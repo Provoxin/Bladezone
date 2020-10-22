@@ -1,4 +1,4 @@
-# Bladezone
+# [Bladezone](https://workshop.codes/Bladezone)
 The perfect place to practice your nanoblades
 
 
